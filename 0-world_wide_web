@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Displays DNS information for subdomains
+
+domain=$1
+subdomain=$2
+
+get_info() {
+    result=$(dig "$1.$domain" | grep -A1 "ANSWER SECTION:" | tail -n1)
+    echo "$result" | awk '{print "The subdomain '$1' is a "$4" record and points to "$5}'
+}
+
+if [ -z "$subdomain" ]; then
+    for sub in www lb-01 web-01 web-02
+    do
+        get_info $sub
+    done
+else
+    get_info $subdomain
+fi

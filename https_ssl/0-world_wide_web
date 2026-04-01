@@ -2,19 +2,22 @@
 # Displays DNS information for subdomains using dig and awk
 
 get_info() {
-	local subdomain=$1
-	local domain=$2
-	result=$(dig "$subdomain.$domain" | grep -A1 'ANSWER SECTION:' | tail -n1)
-	echo "$result" | awk '{print "The subdomain '"$1"' is a "$4" record and points to "$5}'
+local subdomain=$1
+local domain=$2
+local result
+result=$(dig "$subdomain.$domain" | grep -A1 'ANSWER SECTION:' | tail -n1)
+record_type=$(echo "$result" | awk '{print $4}')
+destination=$(echo "$result" | awk '{print $5}')
+echo "The subdomain $subdomain is a $record_type record and points to $destination"
 }
 
 domain=$1
 subdomain=$2
 
 if [ -z "$subdomain" ]; then
-	for sub in www lb-01 web-01 web-02; do
-		get_info "$sub" "$domain"
-	done
+for sub in www lb-01 web-01 web-02; do
+get_info "$sub" "$domain"
+done
 else
-	get_info "$subdomain" "$domain"
+get_info "$subdomain" "$domain"
 fi

@@ -1,0 +1,22 @@
+global
+    log /dev/log    local0
+    log /dev/log    local1 notice
+    daemon
+defaults
+    log     global
+    mode    http
+    option  httplog
+    option  dontlognull
+    timeout connect 5000
+    timeout client  50000
+    timeout server  50000
+frontend http_front
+    bind *:80
+    redirect scheme https code 301 if !{ ssl_fc }
+frontend https_front
+    bind *:443 ssl crt /etc/haproxy/certs/www.pem
+    default_backend http_back
+backend http_back
+    balance roundrobin
+    server web-01 3.89.31.111:80 check
+    server web-02 44.202.5.108:80 check
